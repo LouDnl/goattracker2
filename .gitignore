@@ -1,2 +1,8 @@
+dat2inc
+datafile
+
+*.dat
+*.o
+
 .svn
 .svn/**
