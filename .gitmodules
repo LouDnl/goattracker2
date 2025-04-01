@@ -1,0 +1,3 @@
+[submodule "goattrk2/trunk/src/usbsid"]
+	path = goattrk2/trunk/src/usbsid
+	url = https://github.com/LouDnl/USBSID-Pico-driver.git
