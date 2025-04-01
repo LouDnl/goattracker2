@@ -2,19 +2,24 @@
 
 CC?=gcc
 CXX?=g++
-CFLAGS+=-Ibme -Iasm -O3
+CFLAGS+=-Ibme -Iasm -O3 -I/usr/local/include/libusb-1.0 -L/usr/local/lib
 CXXFLAGS+=$(CFLAGS) -fpermissive
+LIBS+=-L/usr/local/lib -lusb-1.0
 
-EXE=	$(PREFIX)goattrk2$(SUFFIX) \
-	$(PREFIX)gt2reloc$(SUFFIX) \
-	$(PREFIX)ins2snd2$(SUFFIX) \
-	$(PREFIX)sngspli2$(SUFFIX) \
-	$(PREFIX)mod2sng$(SUFFIX)
+# TODO: Move libusb CFLAGS and LIBS to platform specific includes
+# TODO: Add check for availability of USBSID-Pico driver and git-clone if unavailable
+
+EXE=$(PREFIX)goattrk2$(SUFFIX) \
+		$(PREFIX)gt2reloc$(SUFFIX) \
+		$(PREFIX)ins2snd2$(SUFFIX) \
+		$(PREFIX)sngspli2$(SUFFIX) \
+		$(PREFIX)mod2sng$(SUFFIX)
 
 all: $(EXE)
 
 $(PREFIX)goattrk2$(SUFFIX): goatdata.o goattrk2.o gsong.o gorder.o gpattern.o ginstr.o gtable.o gplay.o gdisplay.o \
 gfile.o greloc.o ghelp.o gsound.o gconsole.o gsid.o \
+usbsid/USBSID.o usbsid/USBSIDInterface.o \
 resid/envelope.o resid/extfilt.o resid/filter.o resid/pot.o resid/sid.o resid/wave.o resid/wave6581__ST.o \
 resid/wave6581_P_T.o resid/wave6581_PS_.o resid/wave6581_PST.o resid/wave8580__ST.o resid/wave8580_P_T.o \
 resid/wave8580_PS_.o resid/wave8580_PST.o resid/voice.o \
@@ -30,6 +35,7 @@ bme/bme_gfx.o bme/bme_snd.o bme/bme_win.o bme/bme_mou.o bme/bme_kbd.o bme/bme_io
 # not ready for that
 $(PREFIX)gt2reloc$(SUFFIX): goatdata.o gt2reloc.o gsong.o gorder.o gpattern.o ginstr.o gtable.o gplay.o gdisplay.o \
 gfile.o ghelp.o gsound.o gconsole.o gsid.o \
+usbsid/USBSID.o usbsid/USBSIDInterface.o \
 resid/envelope.o resid/extfilt.o resid/filter.o resid/pot.o resid/sid.o resid/wave.o resid/wave6581__ST.o \
 resid/wave6581_P_T.o resid/wave6581_PS_.o resid/wave6581_PST.o resid/wave8580__ST.o resid/wave8580_P_T.o \
 resid/wave8580_PS_.o resid/wave8580_PST.o resid/voice.o \
@@ -40,7 +46,7 @@ asm/pc.o asm/vec.o \
 bme/bme_gfx.o bme/bme_snd.o bme/bme_win.o bme/bme_mou.o bme/bme_kbd.o bme/bme_io.o bme/bme_end.o bme/bme.o
 	$(CXX) -DGT2RELOC -o $@ $^ $(LIBS)
 	strip $@
-	
+
 $(PREFIX)mod2sng$(SUFFIX): mod2sng.o bme/bme_end.o
 	$(CC) -o $@ $^
 	strip $@
