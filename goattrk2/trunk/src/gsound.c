@@ -9,11 +9,14 @@
 #endif
 
 #include "goattrk2.h"
+// TODO: FINISH
+#include "usbsid/USBSIDInterface.h"
 
 // General / reSID output
 int playspeed;
 int usehardsid = 0;
 int usecatweasel = 0;
+int useusbsid = 0; // NOTE: CHANGED
 int initted = 0;
 int firsttimeinit = 1;
 unsigned framerate = PALFRAMERATE;
@@ -67,10 +70,16 @@ HANDLE catweaselhandle;
 // Unix HardSID & CatWeasel output
 int hardsidfd = -1;
 int catweaselfd = -1;
+USBSIDitf usbsiddev; // NOTE: CHANGED
+
+
 
 #endif
 
-int sound_init(unsigned b, unsigned mr, unsigned writer, unsigned hardsid, unsigned m, unsigned ntsc, unsigned multiplier, unsigned catweasel, unsigned interpolate, unsigned customclockrate)
+int sound_init(unsigned b, unsigned mr, unsigned writer,
+               unsigned hardsid, unsigned m, unsigned ntsc,
+               unsigned multiplier, unsigned catweasel, unsigned usbsid, // NOTE: CHANGED
+               unsigned interpolate, unsigned customclockrate)
 {
   int c;
 
@@ -195,6 +204,27 @@ int sound_init(unsigned b, unsigned mr, unsigned writer, unsigned hardsid, unsig
     goto SOUNDOK;
   }
 
+  if (usbsid) // NOTE: CHANGED
+  {
+    if (usbsiddev == NULL) {
+      usbsiddev = create_USBSID();
+      /* NOTICE: Digitunes only play with threaded cycles */
+      // if (init_USBSID(usbsiddev, false, false) < 0) {
+      if (init_USBSID(usbsiddev, true, true) < 0) {
+        return -1;
+      }
+      if (usbsiddev != NULL) {
+        if (ntsc)
+          setclockrate_USBSID(usbsiddev, 1022727, true); /* TESTING */
+        else
+          setclockrate_USBSID(usbsiddev, 985248, true); /* TESTING */
+      }
+    }
+    useusbsid = 1;
+    SDL_SetTimer(1000 / framerate, sound_timer);
+    goto SOUNDOK;
+  }
+
   if (!buffer) buffer = (Sint16*)malloc(MIXBUFFERSIZE * sizeof(Sint16));
   if (!buffer) return 0;
 
@@ -234,7 +264,7 @@ void sound_uninit(void)
   // not mixing stuff anymore, and we can safely delete related structures
   SDL_Delay(50);
 
-  if (usehardsid || usecatweasel)
+  if (usehardsid || usecatweasel || useusbsid) // NOTE: CHANGED
   {
     #ifdef __WIN32__
     if (!playerthread)
@@ -262,7 +292,7 @@ void sound_uninit(void)
     fclose(writehandle);
     writehandle = NULL;
   }
-  
+
   if (buffer)
   {
     free(buffer);
@@ -320,6 +350,12 @@ void sound_uninit(void)
       catweaselfd = -1;
     }
     #endif
+  }
+
+  if (useusbsid) // NOTE: CHANGED
+  {
+    // TODO: FINISH
+    close_USBSID(usbsiddev);
   }
 }
 
@@ -475,6 +511,19 @@ void sound_playrout(void)
       write(catweaselfd, &sidreg[o], 1);
     }
     #endif
+  }
+  else if (useusbsid) // NOTE: CHANGED
+  {
+    // TODO: FINISH
+    for (c = 0; c < NUMSIDREGS; c++)
+    {
+      unsigned o = sid_getorder(c);
+      printf("[W] $%02X:%02X %u\n", o, sidreg[o], SIDWRITEDELAY);
+      writeringcycled_USBSID(usbsiddev, o, sidreg[o], SIDWRITEDELAY);
+      // writecycled_USBSID(usbsiddev, o, sidreg[o], SIDWRITEDELAY);
+      // write_USBSID(usbsiddev, o, sidreg[o]);
+    }
+    flush_USBSID(usbsiddev);
   }
 }
 

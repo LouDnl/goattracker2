@@ -60,6 +60,7 @@ unsigned mr = DEFAULTMIXRATE;
 unsigned writer = 0;
 unsigned hardsid = 0;
 unsigned catweasel = 0;
+unsigned usbsid = 0; // NOTE: CHANGED
 unsigned interpolate = 0;
 unsigned residdelay = 0;
 unsigned hardsidbufinteractive = 20;
@@ -120,6 +121,7 @@ char* usage[] = {
     "-Yxx Path to a Scala tuning file .scl",
     "-Zxx Set random reSID write delay in cycles (0 = off) DEFAULT=off",
     "-wxx Set window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window) DEFAULT=1",
+    "-u   USBSID", // TODO: FINISH  // NOTE: CHANGED
     "-N   Use NTSC timing",
     "-P   Use PAL timing (DEFAULT)",
     "-W   Write sound output to a file SIDAUDIO.RAW",
@@ -169,6 +171,7 @@ int main(int argc, char **argv)
     getparam(configfile, (unsigned *)&stepsize);
     getparam(configfile, &multiplier);
     getparam(configfile, &catweasel);
+    getparam(configfile, &usbsid); // NOTE: CHANGED
     getparam(configfile, &adparam);
     getparam(configfile, &interpolate);
     getparam(configfile, &patterndispmode);
@@ -236,7 +239,7 @@ int main(int argc, char **argv)
           printf("%s\n", usage[y]);
 #endif
         return EXIT_SUCCESS;
-        
+
         case 'Z':
         sscanf(&argv[c][2], "%u", &residdelay);
         break;
@@ -330,19 +333,23 @@ int main(int argc, char **argv)
         case 'G':
         sscanf(&argv[c][2], "%f", &basepitch);
         break;
- 
+
         case 'Q':
         sscanf(&argv[c][2], "%f", &equaldivisionsperoctave);
         break;
- 
+
         case 'J':
         sscanf(&argv[c][2], "%s", specialnotenames);
         break;
-  
+
         case 'Y':
         sscanf(&argv[c][2], "%s", scalatuningfilepath);
         break;
-  
+
+        case 'u':
+        sscanf(&argv[c][2], "%u", &usbsid); // NOTE: CHANGED
+        break;
+
         case 'w':
         sscanf(&argv[c][2], "%u", &bigwindow);
         break;
@@ -412,8 +419,8 @@ int main(int argc, char **argv)
   initchannels();
   clearsong(1,1,1,1,1);
 
-  // Init sound
-  if (!sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate))
+  // Init sound // NOTE: CHANGED
+  if (!sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate))
   {
     printtextc(MAX_ROWS/2-1,15,"Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -465,6 +472,7 @@ int main(int argc, char **argv)
                         ";Pattern highlight step size\n%d\n\n"
                         ";Speed multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
                         ";Use CatWeasel SID (0 = off, 1 = on)\n%d\n\n"
+                        ";Use USBSID SID (0 = off, 1 = on)\n%d\n\n" // NOTE: CHANGED
                         ";Hardrestart ADSR parameter\n$%04x\n\n"
                         ";reSID interpolation (0 = off, 1 = on, 2 = distortion, 3 = distortion & on)\n%d\n\n"
                         ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
@@ -505,6 +513,7 @@ int main(int argc, char **argv)
     stepsize,
     multiplier,
     catweasel,
+    usbsid, // NOTE: CHANGED
     adparam,
     interpolate,
     patterndispmode,
@@ -660,7 +669,7 @@ void mousecommands(void)
     {
         if ((!prevmouseb) || (mouseheld > HOLDDELAY))
         {
-        if (mouseb & MOUSEB_LEFT) 
+        if (mouseb & MOUSEB_LEFT)
         {
           epchn = c;
           nextpattern();
@@ -873,12 +882,14 @@ void mousecommands(void)
       if ((mousex >= 49+10) && (mousex <= 52+10))
       {
         ntsc ^= 1;
-        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+        // NOTE: CHANGED
+        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
       }
       if ((mousex >= 54+10) && (mousex <= 57+10))
       {
         sidmodel ^= 1;
-        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+        // NOTE: CHANGED
+        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
       }
       if ((mousex >= 62+10) && (mousex <= 65+10)) editadsr();
       if ((mousex >= 67+10) && (mousex <= 68+10)) prevmultiplier();
@@ -1098,7 +1109,8 @@ void generalcommands(void)
     else
     {
       sidmodel ^= 1;
-      sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+      // NOTE: CHANGED
+      sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
     }
     break;
 
@@ -1454,7 +1466,7 @@ void getstringparam(FILE *handle, char *value)
   }
 
   configptr = configbuf;
-  
+
   sscanf(configptr, "%s", value);
 }
 
@@ -1463,7 +1475,8 @@ void prevmultiplier(void)
   if (multiplier > 0)
   {
     multiplier--;
-    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+    // NOTE: CHANGED
+    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
   }
 }
 
@@ -1472,7 +1485,8 @@ void nextmultiplier(void)
   if (multiplier < 16)
   {
     multiplier++;
-    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+    // NOTE: CHANGED
+    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
   }
 }
 
@@ -1497,7 +1511,7 @@ void calculatefreqtable()
           if (intfreq > 0xffff)
               intfreq = 0xffff;
           freqtbllo[c] = intfreq & 0xff;
-          freqtblhi[c] = intfreq >> 8;          
+          freqtblhi[c] = intfreq >> 8;
           freq = cyclebasefreq * tuning[i];
           c++;
         }
@@ -1527,7 +1541,7 @@ void setspecialnotenames()
   int oct;
   char *name;
   char octave[11];
-  
+
   i = 0;
   oct = 0;
   while (i < 93)
@@ -1630,5 +1644,5 @@ void readscalatuningfile()
       }
     }
     fclose(scalatuningfile);
-  }  
+  }
 }
