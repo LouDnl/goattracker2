@@ -1,3 +1,6 @@
 [submodule "goattrk2/trunk/src/usbsid"]
 	path = goattrk2/trunk/src/usbsid
 	url = https://github.com/LouDnl/USBSID-Pico-driver.git
+[submodule "gt2stereo/trunk/src/usbsid"]
+	path = gt2stereo/trunk/src/usbsid
+	url = https://github.com/LouDnl/USBSID-Pico-driver.git
