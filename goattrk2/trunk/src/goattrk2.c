@@ -121,7 +121,7 @@ char* usage[] = {
     "-Yxx Path to a Scala tuning file .scl",
     "-Zxx Set random reSID write delay in cycles (0 = off) DEFAULT=off",
     "-wxx Set window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window) DEFAULT=1",
-    "-u   USBSID", // TODO: FINISH  // NOTE: CHANGED
+    "-uxx USBSID", // TODO: FINISH  // NOTE: CHANGED
     "-N   Use NTSC timing",
     "-P   Use PAL timing (DEFAULT)",
     "-W   Write sound output to a file SIDAUDIO.RAW",

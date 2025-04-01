@@ -9,8 +9,7 @@
 #endif
 
 #include "goattrk2.h"
-// TODO: FINISH
-#include "usbsid/USBSIDInterface.h"
+#include "usbsid/USBSIDInterface.h" // TODO: FINISH
 
 // General / reSID output
 int playspeed;
@@ -65,11 +64,14 @@ void InitHardDLL(void);
 #define SID_SID_PEEK_POKE   CTL_CODE(FILE_DEVICE_SOUND,0x0800UL + 1,METHOD_BUFFERED,FILE_ANY_ACCESS)
 HANDLE catweaselhandle;
 
+USBSIDitf usbsiddev; // NOTE: CHANGED
+
 #else
 
 // Unix HardSID & CatWeasel output
 int hardsidfd = -1;
 int catweaselfd = -1;
+// Linux USBSID-Pico output
 USBSIDitf usbsiddev; // NOTE: CHANGED
 
 
