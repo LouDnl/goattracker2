@@ -1,0 +1,14 @@
+#
+# MorphOS makefile
+#
+
+CFLAGS=`sdl-config --cflags`
+PREFIX=../morphos/
+SUFFIX=
+LIBS=`sdl-config --libs`
+
+include makefile.common
+
+dist:
+	lha -r a :GoatTrackerStereo-mos //// gt2stereo
+	lha    d :GoatTrackerStereo-mos *.svn* "*.o" *dat2inc *datafile
