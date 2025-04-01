@@ -33,7 +33,7 @@
 
 #define KEY_TRACKER 0
 #define KEY_DMC 1
-#define KEY_JANKO 2				   
+#define KEY_JANKO 2
 
 #define VISIBLEPATTROWS 31
 #define VISIBLEORDERLIST 11
@@ -76,6 +76,7 @@ extern unsigned mr;
 extern unsigned writer;
 extern unsigned hardsid;
 extern unsigned catweasel;
+extern unsigned usbsid; // NOTE: CHANGED
 extern unsigned interpolate;
 extern unsigned hardsidbufinteractive;
 extern unsigned hardsidbufplayback;

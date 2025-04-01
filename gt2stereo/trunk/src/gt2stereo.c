@@ -60,6 +60,7 @@ unsigned mr = DEFAULTMIXRATE;
 unsigned writer = 0;
 unsigned hardsid = 0;
 unsigned catweasel = 0;
+unsigned usbsid = 0; // NOTE: CHANGED
 unsigned interpolate = 0;
 unsigned residdelay = 0;
 unsigned hardsidbufinteractive = 20;
@@ -134,6 +135,7 @@ int main(int argc, char **argv)
     getparam(configfile, (unsigned *)&stepsize);
     getparam(configfile, &multiplier);
     getparam(configfile, &catweasel);
+    getparam(configfile, &usbsid); // NOTE: CHANGED
     getparam(configfile, &adparam);
     getparam(configfile, &interpolate);
     getparam(configfile, &patterndispmode);
@@ -181,7 +183,7 @@ int main(int argc, char **argv)
       {
         case '?':
         if (!initscreen())
-          return 1;       
+          return 1;
         if (argv[c][2]=='?') {
           onlinehelp(1,0);
           return 0;
@@ -214,6 +216,7 @@ int main(int argc, char **argv)
         printtext(0,y++,15,"-Yxx Path to a Scala tuning file .scl");
         printtext(0,y++,15,"-Zxx Set random reSID write delay in cycles (0 = off) DEFAULT=off");
         printtext(0,y++,15,"-wxx Set window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window) DEFAULT=1");
+        printtext(0,y++,15,"-uxx USBSID"); // TODO: FINISH  // NOTE: CHANGED
         printtext(0,y++,15,"-N   Use NTSC timing");
         printtext(0,y++,15,"-P   Use PAL timing (DEFAULT)");
         printtext(0,y++,15,"-W   Write sound output to a file SIDAUDIO.RAW");
@@ -315,19 +318,23 @@ int main(int argc, char **argv)
         case 'G':
         sscanf(&argv[c][2], "%f", &basepitch);
         break;
- 
+
         case 'Q':
         sscanf(&argv[c][2], "%f", &equaldivisionsperoctave);
         break;
- 
+
         case 'J':
         sscanf(&argv[c][2], "%s", specialnotenames);
         break;
-  
+
         case 'Y':
         sscanf(&argv[c][2], "%s", scalatuningfilepath);
         break;
-  
+
+        case 'u':
+        sscanf(&argv[c][2], "%u", &usbsid); // NOTE: CHANGED
+        break;
+
         case 'w':
         sscanf(&argv[c][2], "%u", &bigwindow);
         break;
@@ -396,8 +403,8 @@ int main(int argc, char **argv)
   initchannels();
   clearsong(1,1,1,1,1);
 
-  // Init sound
-  if (!sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate))
+  // Init sound // NOTE: CHANGED
+  if (!sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate))
   {
     printtextc(MAX_ROWS/2-1,15,"Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -449,6 +456,7 @@ int main(int argc, char **argv)
                         ";Pattern highlight step size\n%d\n\n"
                         ";Speed multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
                         ";Use CatWeasel SID (0 = off, 1 = on)\n%d\n\n"
+                        ";Use USBSID SID (0 = off, 1 = on)\n%d\n\n" // NOTE: CHANGED
                         ";Hardrestart ADSR parameter\n$%04x\n\n"
                         ";reSID interpolation (0 = off, 1 = on, 2 = distortion, 3 = distortion & on)\n%d\n\n"
                         ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
@@ -475,7 +483,7 @@ int main(int argc, char **argv)
                         ";Base pitch of A-4 in Hz (0 = use default frequencytable)\n%f\n\n"
                         ";Equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)\n%f\n\n"
 			            			";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
-				            		";Path to a Scala tuning file .scl\n%s\n\n",				
+				            		";Path to a Scala tuning file .scl\n%s\n\n",
     b,
     mr,
     hardsid,
@@ -489,6 +497,7 @@ int main(int argc, char **argv)
     stepsize,
     multiplier,
     catweasel,
+    usbsid, // NOTE: CHANGED
     adparam,
     interpolate,
     patterndispmode,
@@ -865,12 +874,14 @@ void mousecommands(void)
       if ((mousex >= 49+20) && (mousex <= 52+20))
       {
         ntsc ^= 1;
-        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+        // NOTE: CHANGED
+        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
       }
       if ((mousex >= 54+20) && (mousex <= 57+20))
       {
         sidmodel ^= 1;
-        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+        // NOTE: CHANGED
+        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
       }
       if ((mousex >= 62+20) && (mousex <= 65+20)) editadsr();
       if ((mousex >= 67+20) && (mousex <= 68+20)) prevmultiplier();
@@ -1091,7 +1102,8 @@ void generalcommands(void)
     else
     {
       sidmodel ^= 1;
-      sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+      // NOTE: CHANGED
+      sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
     }
     break;
 
@@ -1452,7 +1464,7 @@ void getstringparam(FILE *handle, char *value)
   }
 
   configptr = configbuf;
-  
+
   sscanf(configptr, "%s", value);
 }
 
@@ -1461,7 +1473,8 @@ void prevmultiplier(void)
   if (multiplier > 0)
   {
     multiplier--;
-    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+    // NOTE: CHANGED
+    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
   }
 }
 
@@ -1470,7 +1483,8 @@ void nextmultiplier(void)
   if (multiplier < 16)
   {
     multiplier++;
-    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate);
+    // NOTE: CHANGED
+    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, usbsid, interpolate, customclockrate);
   }
 }
 
@@ -1495,7 +1509,7 @@ void calculatefreqtable()
           if (intfreq > 0xffff)
               intfreq = 0xffff;
           freqtbllo[c] = intfreq & 0xff;
-          freqtblhi[c] = intfreq >> 8;          
+          freqtblhi[c] = intfreq >> 8;
           freq = cyclebasefreq * tuning[i];
           c++;
         }
@@ -1525,7 +1539,7 @@ void setspecialnotenames()
   int oct;
   char *name;
   char octave[11];
-  
+
   i = 0;
   oct = 0;
   while (i < 93)
@@ -1558,7 +1572,7 @@ void readscalatuningfile()
   double numerator;
   double denominator;
   double centvalue;
-	
+
   scalatuningfile = fopen(scalatuningfilepath, "rt");
   if (scalatuningfile)
   {
@@ -1571,7 +1585,7 @@ void readscalatuningfile()
     }
     configptr = configbuf;
     sscanf(configptr, "%63[^\t\n]", tuningname);
-	
+
     // Tuning count
     for (;;)
     {
@@ -1581,8 +1595,8 @@ void readscalatuningfile()
     }
     configptr = configbuf;
     sscanf(configptr, "%d", &tuningcount);
-	
-    // Tunings 
+
+    // Tunings
 	  for (i = 0; i < tuningcount; i++)
     {
       for (;;)
@@ -1628,5 +1642,5 @@ void readscalatuningfile()
       }
     }
     fclose(scalatuningfile);
-  }  
+  }
 }

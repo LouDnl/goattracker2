@@ -9,6 +9,16 @@ goattrk2/trunk/src/bme/datafile
 
 goattrk2/trunk/src/goatdata.c
 
+gt2stereo/trunk/linux/gt2stereo
+gt2stereo/trunk/linux/ins2snd2
+gt2stereo/trunk/linux/mod2sng2
+gt2stereo/trunk/linux/ss2stereo
+
+gt2stereo/trunk/src/bme/dat2inc
+gt2stereo/trunk/src/bme/datafile
+
+gt2stereo/trunk/src/goatdata.c
+
 *.code-workspace
 *.dat
 *.o
