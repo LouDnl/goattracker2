@@ -6,9 +6,6 @@ CFLAGS+=-Ibme -Iasm -O3 -I/usr/local/include/libusb-1.0 -L/usr/local/lib
 CXXFLAGS+=$(CFLAGS) -fpermissive
 LIBS+=-L/usr/local/lib -lusb-1.0
 
-# TODO: Move libusb CFLAGS and LIBS to platform specific includes
-# TODO: Add check for availability of USBSID-Pico driver and git-clone if unavailable
-
 EXE=$(PREFIX)goattrk2$(SUFFIX) \
 		$(PREFIX)gt2reloc$(SUFFIX) \
 		$(PREFIX)ins2snd2$(SUFFIX) \
