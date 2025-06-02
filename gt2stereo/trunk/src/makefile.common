@@ -2,11 +2,10 @@
 
 CC?=gcc
 CXX?=g++
-CFLAGS+=-Ibme -Iasm -O3 -I/usr/local/include/libusb-1.0 -L/usr/local/lib
+CFLAGS+=-Ibme -Iasm -O3 `pkg-config --cflags libusb-1.0` -L/usr/lib
 CXXFLAGS+=$(CFLAGS) -fpermissive
-LIBS+=-L/usr/local/lib -lusb-1.0
+LIBS+=-L/usr/lib `pkg-config --libs libusb-1.0`
 
-# TODO: Move libusb CFLAGS and LIBS to platform specific includes
 # TODO: Add check for availability of USBSID-Pico driver and git-clone if unavailable
 
 EXE=$(PREFIX)gt2stereo$(SUFFIX) \
@@ -54,4 +53,5 @@ clean:
 	$(RM) bme/*.o
 	$(RM) resid/*.o
 	$(RM) resid-fp/*.o
+	$(RM) usbsid/*.o
 	$(RM) $(EXE)
