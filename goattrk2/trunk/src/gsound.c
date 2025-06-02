@@ -210,8 +210,8 @@ int sound_init(unsigned b, unsigned mr, unsigned writer,
   {
     if (usbsiddev == NULL) {
       usbsiddev = create_USBSID();
-      /* NOTICE: Digitunes only play with threaded cycles */
-      // if (init_USBSID(usbsiddev, false, false) < 0) {
+    }
+    if (initialised_USBSID(usbsiddev)) {
       if (init_USBSID(usbsiddev, true, true) < 0) {
         return -1;
       }
@@ -514,13 +514,13 @@ void sound_playrout(void)
     }
     #endif
   }
-  else if (useusbsid) // NOTE: CHANGED
+  else if (useusbsid && initialised_USBSID(usbsiddev) && portisopen_USBSID(usbsiddev)) // NOTE: CHANGED
   {
     // TODO: FINISH
     for (c = 0; c < NUMSIDREGS; c++)
     {
       unsigned o = sid_getorder(c);
-      printf("[W] $%02X:%02X %u\n", o, sidreg[o], SIDWRITEDELAY);
+      /* printf("[W] $%02X:%02X %u\n", o, sidreg[o], SIDWRITEDELAY); */
       writeringcycled_USBSID(usbsiddev, o, sidreg[o], SIDWRITEDELAY);
       // writecycled_USBSID(usbsiddev, o, sidreg[o], SIDWRITEDELAY);
       // write_USBSID(usbsiddev, o, sidreg[o]);
